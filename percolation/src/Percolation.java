@@ -63,10 +63,10 @@ public class Percolation {
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
-        if (row < 1 || row > n || col < 1 || col > n) {
-            throw new IllegalArgumentException("Index out of range " + row + "," + col);
-        }
-        return wqu.find(index(row, col)) == wqu.find(headNodeIndex);
+        // the first row is alway connected to head node
+        // so we need this extra check.
+
+        return isOpen(row, col) && (wqu.find(index(row, col)) == wqu.find(headNodeIndex));
     }
 
     // returns the number of open sites
@@ -76,11 +76,9 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
+        if (n == 1)
+            return openness[index(1, 1)];
         return wqu.find(headNodeIndex) == wqu.find(tailNodeIndex);
-    }
-
-    // test client (optional)
-    public static void main(String[] args) {
     }
 
     private int index(int row, int col) {

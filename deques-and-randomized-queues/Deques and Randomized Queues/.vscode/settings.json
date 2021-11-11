@@ -1,8 +1,8 @@
 {
-    "java.project.sourcePaths": ["src", "driver"],
+    "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "/home/jingw/Projects/algs4/algs4.jar"
+        "/mnt/c/Users/JingW/Documents/Projects/algs4/algs4.jar"
     ]
 }

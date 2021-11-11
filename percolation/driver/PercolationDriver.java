@@ -6,12 +6,12 @@ public class PercolationDriver {
         int n = StdIn.readInt();
         StdOut.println("matrix size " + n);
         Percolation p = new Percolation(n);
-        while(!StdIn.isEmpty()) {
+        while (!StdIn.isEmpty()) {
             int row = StdIn.readInt();
             int col = StdIn.readInt();
-            StdOut.println("opening " + row + ","+ col);
+            StdOut.println("opening " + row + "," + col);
             p.open(row, col);
-            if(!p.isOpen(row, col)){
+            if (!p.isOpen(row, col)) {
                 StdOut.println("ERROR");
                 return;
             }
@@ -21,6 +21,9 @@ public class PercolationDriver {
             StdOut.println("Number of Open Sites " + p.numberOfOpenSites());
             StdOut.println("is Full " + p.isFull(row, col));
         }
+        if (p.percolates()) {
+            StdOut.println("Percolate!");
+        }
     }
-    
+
 }

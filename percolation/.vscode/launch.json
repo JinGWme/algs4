@@ -6,11 +6,24 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch PercolationDriver",
+            "name": "Launch PercolationStats",
+            "request": "launch",
+            "mainClass": "PercolationStats",
+            "projectName": "percolation_5de61930"
+        },
+        {
+            "type": "java",
+            "name": "Launch Input1",
             "request": "launch",
             "mainClass": "PercolationDriver",
-            "projectName": "percolation_d66ef2b4",
-            "args": "< testing/input6.txt"
+            "args": "< data/input1.txt"
+        },
+        {
+            "type": "java",
+            "name": "Launch Input1-no",
+            "request": "launch",
+            "mainClass": "PercolationDriver",
+            "args": "< data/input1-no.txt"
         }
     ]
 }
