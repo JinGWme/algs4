@@ -141,6 +141,8 @@ public class KdTree {
     private KdTreeNode insert(KdTreeNode node, KdTreeNode parent, Point2D point) {
         if (node == null)
             return parent.subTreeNode(point);
+        // do not insert duplicated node
+        if (node.p.equals(point)) return node; 
         int cmp = node.compareTo(point);
         if (cmp >= 0) // left subtree, go left when equal
             node.left = insert(node.left, node, point);
@@ -157,7 +159,7 @@ public class KdTree {
         KdTreeNode x = root;
         while (x != null) {
             int cmp = x.compareTo(p);
-            if (cmp >= 0)   // go left when equal
+            if (cmp > 0)   // go left when equal
                 x = x.left;
             else if (cmp < 0)
                 x = x.right;
@@ -238,7 +240,32 @@ public class KdTree {
     }
 
     public static void main(String[] args) {
-        testA();
+        testC();
+    }
+
+    private static void testC() {
+        In in = new In("data/testc.txt");
+        KdTree tree = new KdTree();
+        while(!in.isEmpty()) {
+            double x = in.readDouble();
+            if (x > 1 || x < 0) throw new IllegalArgumentException();
+            double y = in.readDouble();
+            if (y > 1 || y < 0) throw new IllegalArgumentException();
+            Point2D t = new Point2D(x, y);
+            StdOut.println("Inserting " + t);
+            tree.insert(t);
+        }
+        if (!tree.contains(new Point2D(0.2, 0.3)))
+            throw new RuntimeException("Losing point ");
+
+    }
+    private static void testB() {
+        KdTree tree = new KdTree();
+        tree.insert(new Point2D(0, 1));
+        tree.insert(new Point2D(0, 0));
+        if (tree.size() != 2) throw new RuntimeException("Wrong tree size");
+        tree.insert(new Point2D(0, 1));
+        if (tree.size() != 2) throw new RuntimeException("Duplicated point inserted");
     }
      
     private static void testA() {
