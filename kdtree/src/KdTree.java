@@ -158,13 +158,12 @@ public class KdTree {
     public boolean contains(Point2D p) {
         KdTreeNode x = root;
         while (x != null) {
+            if (x.p.equals(p)) return true;
             int cmp = x.compareTo(p);
-            if (cmp > 0)   // go left when equal
+            if (cmp >= 0)   // go left when equal
                 x = x.left;
             else if (cmp < 0)
                 x = x.right;
-            else
-                return x.p.equals(p);
         }
         return false;
     }
@@ -240,7 +239,24 @@ public class KdTree {
     }
 
     public static void main(String[] args) {
-        testC();
+        testD();
+    }
+
+    private static void testD() {
+        In in = new In("data/testd.txt");
+        KdTree tree = new KdTree();
+        while(!in.isEmpty()) {
+            double x = in.readDouble();
+            if (x > 1 || x < 0) throw new IllegalArgumentException();
+            double y = in.readDouble();
+            if (y > 1 || y < 0) throw new IllegalArgumentException();
+            Point2D t = new Point2D(x, y);
+            StdOut.println("Inserting " + t);
+            tree.insert(t);
+        }
+        if (!tree.contains(new Point2D(0.25, 0.5)))
+            throw new RuntimeException("Losing point ");
+
     }
 
     private static void testC() {
