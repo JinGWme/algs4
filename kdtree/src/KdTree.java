@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -35,7 +36,7 @@ public class KdTree {
 
         public KdTreeNode subTreeNode(Point2D other){ return null; };
 
-        public void draw(){}
+        public void draw(){ return; }
 
         @Override
         public int compareTo(Point2D o) {
@@ -71,7 +72,7 @@ public class KdTree {
             if (cmp < 0) // right branch (upper)
                 return new VerticalKdTreeNode(other,
                         new RectHV(getRect().xmin(), getPoint().y(), getRect().xmax(), getRect().ymax()));
-            else if (cmp > 0) // left branch (lower)
+            else if (cmp >= 0) // left branch (lower), go left when equal
                 return new VerticalKdTreeNode(other,
                         new RectHV(getRect().xmin(), getRect().ymin(), getRect().xmax(), getPoint().y()));
             return null;
@@ -96,8 +97,8 @@ public class KdTree {
             if (cmp < 0)
                 return new HorizontalKdTreeNode(other,
                         new RectHV(getPoint().x(), getRect().ymin(), getRect().xmax(), getRect().ymax()));
-            // left branch
-            else if (cmp > 0)
+            // left branch, go left when equal
+            else if (cmp >= 0)
                 return new HorizontalKdTreeNode(other,
                         new RectHV(getRect().xmin(), getRect().ymin(), getPoint().x(), getRect().ymax()));
             return null;
@@ -141,11 +142,11 @@ public class KdTree {
         if (node == null)
             return parent.subTreeNode(point);
         int cmp = node.compareTo(point);
-        if (cmp > 0) // left subtree
+        if (cmp >= 0) // left subtree, go left when equal
             node.left = insert(node.left, node, point);
         else if (cmp < 0)
             node.right = insert(node.right, node, point);
-        // re-count node number
+        // re-calculate node number
         int leftSize = node.left != null ? node.left.size : 0;
         int rightSize = node.right != null ? node.right.size : 0;
         node.size = leftSize + rightSize + 1;
@@ -155,8 +156,8 @@ public class KdTree {
     public boolean contains(Point2D p) {
         KdTreeNode x = root;
         while (x != null) {
-            int cmp = x.compareTo(p); // axis does not matter here
-            if (cmp > 0)
+            int cmp = x.compareTo(p);
+            if (cmp >= 0)   // go left when equal
                 x = x.left;
             else if (cmp < 0)
                 x = x.right;
@@ -220,12 +221,9 @@ public class KdTree {
         if (cmp < 0) {
             firstSubTree = x.right;
             secondSubTree = x.left;
-        } else if (cmp > 0) {
+        } else {  // go left when equal
             firstSubTree = x.left;
             secondSubTree = x.right;
-        } else {
-            firstSubTree = null;
-            secondSubTree = null;
         }
 
         Point2D nearestPoint = nearest(firstSubTree, target);
@@ -240,17 +238,23 @@ public class KdTree {
     }
 
     public static void main(String[] args) {
-        KdTree t = new KdTree();
-        for (int i = 0; i < 10; i++) {
-            double x = StdRandom.uniform() * 0.5;
-            double y = StdRandom.uniform() * 0.5;
-            StdOut.println("x: " + x + " y:" + y);
-            t.insert(new Point2D(x, y));
+        testA();
+    }
+     
+    private static void testA() {
+        In in = new In("data/testa.txt");
+        KdTree tree = new KdTree();
+        int nodeCount = 0;
+        while(!in.isEmpty()) {
+            double x = in.readDouble();
+            if (x > 1 || x < 0) throw new IllegalArgumentException();
+            double y = in.readDouble();
+            if (y > 1 || y < 0) throw new IllegalArgumentException();
+            Point2D t = new Point2D(x, y);
+            StdOut.println("Inserting " + t);
+            tree.insert(t);
+            nodeCount++;
+            if (nodeCount != tree.size()) throw new RuntimeException("Wrong size");
         }
-        t.insert(new Point2D(0.7, 0.7));
-        StdOut.println(t.contains(new Point2D(0.7, 0.7)));
-        StdOut.println(t.contains(new Point2D(0.7, 0.71)));
-        StdOut.println(t.size());
-        t.draw();
     }
 }
