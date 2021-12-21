@@ -3,6 +3,7 @@
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "/mnt/c/Users/JingW/Documents/Projects/algs4/algs4.jar"
+        "/mnt/c/Users/JingW/Documents/Projects/algs4/algs4.jar",
+        "/home/wangj/works/algs4/algs4.jar"
     ]
 }
