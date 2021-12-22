@@ -99,12 +99,11 @@ public class WordNet {
             throw new IllegalArgumentException();
         SAP sap = new SAP(G);
         int ancestor = sap.ancestor(nounMap.get(nounA), nounMap.get(nounB));
-        return idMap.get(ancestor)[0];
+        return String.join(" ", idMap.get(ancestor));
     }
 
     // do unit testing of this class
     public static void main(String[] args) {
         // This is empty, unit test will be done by JUnit
-
     }
 }

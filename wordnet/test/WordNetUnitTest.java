@@ -77,7 +77,9 @@ class WordNetUnitTest {
     }
 
     @Test
-    void testNotDAG() {
+    void testSAPMultiNoun() {
+        WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");
+        Assertions.assertEquals("whole unit", net.sap("Hippeastrum_puniceum", "ramequin"));
     }
 
 }
