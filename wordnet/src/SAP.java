@@ -12,20 +12,32 @@ public class SAP {
 
   private final Digraph G;
 
-  private static enum VisitType {
+  private enum VisitType {
     N, // not visited
     V, // visited from v
     W // visited from W
   };
+  private class Visit {
+    private final VisitType type;
+    private final int fromId;
+    private final int id;
+    public Visit (VisitType type, int fromId, int id) {
+      this.type = type;
+      this.fromId = fromId;
+      this.id = id;
+    }
+  }
 
-  private int count(int[] ancestor, int start) {
+  private int count(Visit[] visited, int i) {
     int length = 0;
-    while (start != ancestor[start]) {
+    Visit v = visited[i];
+    while (v.fromId != v.id) {
       length++;
-      start = ancestor[start];
+      v = visited[v.fromId];
     }
     return length;
   }
+  
 
   // contructor takes a digraph (not necessarily a DAG)
   public SAP(Digraph g) {
@@ -35,37 +47,30 @@ public class SAP {
   // length of shortest ancestral path between v and w, -1 if no such path
   public int length(int v, int w) {
     // prepare visit map
-    VisitType visited[] = new VisitType[G.V()];
-    Arrays.fill(visited, VisitType.N);
-    int ancestor[] = new int[G.V()];
-    Arrays.fill(ancestor, -1);
+    Visit[] visited = new Visit[G.V()];
+    Arrays.fill(visited, null);
 
     // prepare bfs queue
-    Deque<Integer> bfsQueue = new LinkedList<>();
-    bfsQueue.add(v);
-    visited[v] = VisitType.V;
-    ancestor[v] = v;
-    bfsQueue.add(w);
-    visited[w] = VisitType.W;
-    ancestor[w] = w;
+    Deque<Visit> bfsQueue = new LinkedList<>();
+    bfsQueue.add(new Visit(VisitType.V, v, v));
+    bfsQueue.add(new Visit(VisitType.W, w, w));
 
     while (!bfsQueue.isEmpty()) {
-      int n = bfsQueue.pop();
-      for (Integer i : G.adj(n)) {
-        if (visited[i] == VisitType.N) {
-          // bfs add new node
-          bfsQueue.add(i);
-          visited[i] = visited[n];
-          ancestor[i] = n;
-          continue;
-        } else if (visited[i] != visited[n]) {
-          // find a merging point
-          int length = count(ancestor, i);
-          ancestor[i] = n;
-          length += count(ancestor, i);
-          return length;
-        } else
-          continue;
+      Visit n = bfsQueue.pop();
+      if (visited[n.id] == null) {
+        visited[n.id] = n;
+      } else if (visited[n.id].type != n.type) {
+        // two trees reached the same point
+        int length = count(visited, n.id);
+        visited[n.id] = n;
+        length += count(visited, n.id);
+        return length;
+      } else continue;
+      for (Integer i : G.adj(n.id)) {
+        // check every outgoing edges
+        if (visited[i] == null || visited[i].type != n.type) {
+          bfsQueue.add(new Visit(n.type, n.id, i));
+        }
       }
     }
     return -1;
@@ -75,34 +80,26 @@ public class SAP {
   // -1 if no such path
   public int ancestor(int v, int w) {
     // prepare visit map
-    VisitType visited[] = new VisitType[G.V()];
-    Arrays.fill(visited, VisitType.N);
-    int ancestor[] = new int[G.V()];
-    Arrays.fill(ancestor, -1);
+    Visit[] visited = new Visit[G.V()];
+    Arrays.fill(visited, null);
 
     // prepare bfs queue
-    Deque<Integer> bfsQueue = new LinkedList<>();
-    bfsQueue.add(v);
-    visited[v] = VisitType.V;
-    ancestor[v] = v;
-    bfsQueue.add(w);
-    visited[w] = VisitType.W;
-    ancestor[w] = w;
+    Deque<Visit> bfsQueue = new LinkedList<>();
+    bfsQueue.add(new Visit(VisitType.V, v, v));
+    bfsQueue.add(new Visit(VisitType.W, w, w));
 
     while (!bfsQueue.isEmpty()) {
-      int n = bfsQueue.pop();
-      for (Integer i : G.adj(n)) {
-        if (visited[i] == VisitType.N) {
-          // bfs add new node
-          bfsQueue.add(i);
-          visited[i] = visited[n];
-          ancestor[i] = n;
-          continue;
-        } else if (visited[i] != visited[n]) {
-          // find a merging point
-          return i;
-        } else {
-          continue;
+      Visit n = bfsQueue.pop();
+      if (visited[n.id] == null) {
+        visited[n.id] = n;
+      } else if (visited[n.id].type != n.type) {
+        // two trees reached the same point
+        return n.id;
+      } else continue;
+      for (Integer i : G.adj(n.id)) {
+        // check every outgoing edges
+        if (visited[i] == null || visited[i].type != n.type) {
+          bfsQueue.add(new Visit(n.type, n.id, i));
         }
       }
     }
@@ -113,42 +110,29 @@ public class SAP {
   // w; -1 if no such path
   public int length(Iterable<Integer> v, Iterable<Integer> w) {
     // prepare visit map
-    VisitType visited[] = new VisitType[G.V()];
-    Arrays.fill(visited, VisitType.N);
-    int ancestor[] = new int[G.V()];
-    Arrays.fill(ancestor, -1);
+    Visit[] visited = new Visit[G.V()];
+    Arrays.fill(visited, null);
 
     // prepare bfs queue
-    Deque<Integer> bfsQueue = new LinkedList<>();
-    for (Integer i : v) {
-      visited[i] = VisitType.V;
-      ancestor[i] = i;
-      bfsQueue.add(i);
-    }
-    for (Integer i : w) {
-      visited[i] = VisitType.W;
-      ancestor[i] = i;
-      bfsQueue.add(i);
-    }
+    Deque<Visit> bfsQueue = new LinkedList<>();
+    for (Integer i : v) bfsQueue.add(new Visit(VisitType.V, i, i));
+    for (Integer i : w) bfsQueue.add(new Visit(VisitType.W, i, i));
 
     while (!bfsQueue.isEmpty()) {
-      int n = bfsQueue.pop();
-      for (Integer i : G.adj(n)) {
-        if (visited[i] == VisitType.N) {
-          // bfs add new node
-          visited[i] = visited[n];
-          ancestor[i] = n;
-          bfsQueue.add(i);
-          continue;
-        } else if (visited[i] != visited[n]) {
-          // find a merging point
-          // find a merging point
-          int length = count(ancestor, i);
-          ancestor[i] = n;
-          length += count(ancestor, i);
-          return length;
-        } else {
-          continue;
+      Visit n = bfsQueue.pop();
+      if (visited[n.id] == null) {
+        visited[n.id] = n;
+      } else if (visited[n.id].type != n.type) {
+        // two trees reached the same point
+        int length = count(visited, n.id);
+        visited[n.id] = n;
+        length += count(visited, n.id);
+        return length;
+      } else continue;
+      for (Integer i : G.adj(n.id)) {
+        // check every outgoing edges
+        if (visited[i] == null || visited[i].type != n.type) {
+          bfsQueue.add(new Visit(n.type, n.id, i));
         }
       }
     }
@@ -159,38 +143,26 @@ public class SAP {
   // path
   public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
     // prepare visit map
-    VisitType visited[] = new VisitType[G.V()];
-    Arrays.fill(visited, VisitType.N);
-    int ancestor[] = new int[G.V()];
-    Arrays.fill(ancestor, -1);
+    Visit[] visited = new Visit[G.V()];
+    Arrays.fill(visited, null);
 
     // prepare bfs queue
-    Deque<Integer> bfsQueue = new LinkedList<>();
-    for (Integer i : v) {
-      visited[i] = VisitType.V;
-      ancestor[i] = i;
-      bfsQueue.add(i);
-    }
-    for (Integer i : w) {
-      visited[i] = VisitType.W;
-      ancestor[i] = i;
-      bfsQueue.add(i);
-    }
+    Deque<Visit> bfsQueue = new LinkedList<>();
+    for (Integer n : v) bfsQueue.add(new Visit(VisitType.V, n, n));  
+    for (Integer n : w) bfsQueue.add(new Visit(VisitType.W, n, n));  
 
     while (!bfsQueue.isEmpty()) {
-      int n = bfsQueue.pop();
-      for (Integer i : G.adj(n)) {
-        if (visited[i] == VisitType.N) {
-          // bfs add new node
-          visited[i] = visited[n];
-          ancestor[i] = n;
-          bfsQueue.add(i);
-          continue;
-        } else if (visited[i] != visited[n]) {
-          // find a merging point
-          return i;
-        } else {
-          continue;
+      Visit n = bfsQueue.pop();
+      if (visited[n.id] == null) {
+        visited[n.id] = n;
+      } else if (visited[n.id].type != n.type) {
+        // two trees reached the same point
+        return n.id;
+      } else continue;
+      for (Integer i : G.adj(n.id)) {
+        // check every outgoing edges
+        if (visited[i] == null || visited[i].type != n.type) {
+          bfsQueue.add(new Visit(n.type, n.id, i));
         }
       }
     }

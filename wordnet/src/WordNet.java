@@ -11,9 +11,9 @@ import edu.princeton.cs.algs4.In;
 
 public class WordNet {
 
-    private Digraph G;
-    private Map<String, Set<Integer>> nounMap;
-    private List<String[]> idMap;
+    private final Digraph G;
+    private final Map<String, Set<Integer>> nounMap;
+    private final List<String[]> idMap;
 
     // constructor takes the name of the two input files
     public WordNet(String synset, String hypernyms) {
@@ -70,7 +70,7 @@ public class WordNet {
     public boolean isNoun(String word) {
         if (word == null)
             throw new IllegalArgumentException();
-        if (nounMap.keySet().contains(word))
+        if (nounMap.containsKey(word))
             return true;
         return false;
     }
@@ -101,6 +101,7 @@ public class WordNet {
 
     // do unit testing of this class
     public static void main(String[] args) {
+        // This is empty, unit test will be done by JUnit
 
     }
 }

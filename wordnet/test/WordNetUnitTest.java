@@ -5,13 +5,6 @@ import org.junit.jupiter.api.Test;
 
 class WordNetUnitTest {
 
-    // private final Calculator calculator = new Calculator();
-
-    @Test
-    void createWordNet() {
-        WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");
-    }
-
     @Test 
     void testWordNetNounNum() {
         WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");

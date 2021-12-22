@@ -27,6 +27,7 @@ public class Outcast {
 
     // see test client below
     public static void main(String[] args) {
+        // Test will be done by JUnit
 
     }
 
