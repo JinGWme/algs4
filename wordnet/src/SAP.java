@@ -4,11 +4,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.event.AncestorEvent;
-
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
 public class SAP {
