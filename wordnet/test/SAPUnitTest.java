@@ -68,4 +68,77 @@ public class SAPUnitTest {
         w = new Integer[] {11,12};
         Assertions.assertEquals(1, sap.ancestor(Arrays.asList(v), Arrays.asList(w)));
     }
+
+    @Test
+    void testGraph3Length() {
+        In in = new In("data/digraph3.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertEquals(3, sap.length(10, 7));
+    }
+    @Test
+    void testGraph4Length() {
+        In in = new In("data/digraph4.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertEquals(3, sap.length(1, 4));
+    }
+
+    @Test 
+    void testGraph5Length() {
+        In in = new In("data/digraph5.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertEquals(5, sap.length(17, 21));
+    }
+    @Test 
+    void testGraph6Length() {
+        In in = new In("data/digraph6.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertEquals(4, sap.length(5, 1));
+    }
+    @Test
+    void testGraph9Length() {
+        In in = new In("data/digraph9.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertEquals(3, sap.length(0, 4));
+    }
+    @Test
+    void testGraph1InvalidInput() {
+        In in = new In("data/digraph1.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            sap.length(13, 0);
+            sap.ancestor(13, 0);
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            sap.length(0, 13);
+            sap.ancestor(0, 13);
+        });
+    }
+
+    @Test
+    void testGraph1GroupInvalidInput() {
+
+        In in = new In("data/digraph1.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Integer[] v, w;
+            v = new Integer[] { 13, 0, 7, 9, 12 };
+            w = new Integer[] { 1, 2, 4, 5, 10 };
+            sap.ancestor(Arrays.asList(v), Arrays.asList(w));
+            sap.length(Arrays.asList(v), Arrays.asList(w));
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Integer[] v, w;
+            v = new Integer[] { 0, null, 7, 9, 12 };
+            w = new Integer[] { 1, 2, 4, 5, 10 };
+            sap.ancestor(Arrays.asList(v), Arrays.asList(w));
+            sap.length(Arrays.asList(v), Arrays.asList(w));
+        });
+    }
 }

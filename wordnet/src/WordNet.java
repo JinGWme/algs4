@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 
 public class WordNet {
@@ -59,6 +60,8 @@ public class WordNet {
                 G.addEdge(hypo, Integer.parseInt(line[i]));
             }
         }
+        
+        if ((new DirectedCycle(G)).hasCycle()) throw new IllegalArgumentException();
     }
 
     // returns all WordNet nouns

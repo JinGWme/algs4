@@ -76,4 +76,8 @@ class WordNetUnitTest {
 
     }
 
+    @Test
+    void testNotDAG() {
+    }
+
 }
