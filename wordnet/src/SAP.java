@@ -11,10 +11,11 @@ import edu.princeton.cs.algs4.StdOut;
 public class SAP {
 
   private final Digraph G;
+
   private static enum VisitType {
     N, // not visited
     V, // visited from v
-    W  // visited from W
+    W // visited from W
   };
 
   private int count(int[] ancestor, int start) {
@@ -25,20 +26,21 @@ public class SAP {
     }
     return length;
   }
+
   // contructor takes a digraph (not necessarily a DAG)
   public SAP(Digraph g) {
     this.G = g;
   }
 
   // length of shortest ancestral path between v and w, -1 if no such path
-  public int length(int v, int w){
+  public int length(int v, int w) {
     // prepare visit map
-    VisitType visited[]= new VisitType[G.V()];
+    VisitType visited[] = new VisitType[G.V()];
     Arrays.fill(visited, VisitType.N);
     int ancestor[] = new int[G.V()];
     Arrays.fill(ancestor, -1);
 
-    // prepare bfs queue 
+    // prepare bfs queue
     Deque<Integer> bfsQueue = new LinkedList<>();
     bfsQueue.add(v);
     visited[v] = VisitType.V;
@@ -62,21 +64,23 @@ public class SAP {
           ancestor[i] = n;
           length += count(ancestor, i);
           return length;
-        } else continue;
+        } else
+          continue;
       }
     }
     return -1;
   }
 
-  // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
+  // a common ancestor of v and w that participates in a shortest ancestral path;
+  // -1 if no such path
   public int ancestor(int v, int w) {
     // prepare visit map
-    VisitType visited[]= new VisitType[G.V()];
+    VisitType visited[] = new VisitType[G.V()];
     Arrays.fill(visited, VisitType.N);
     int ancestor[] = new int[G.V()];
     Arrays.fill(ancestor, -1);
 
-    // prepare bfs queue 
+    // prepare bfs queue
     Deque<Integer> bfsQueue = new LinkedList<>();
     bfsQueue.add(v);
     visited[v] = VisitType.V;
@@ -105,15 +109,16 @@ public class SAP {
     return -1;
   }
 
-  // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
-  public int length(Iterable<Integer> v, Iterable<Integer> w){
+  // length of shortest ancestral path between any vertex in v and any vertex in
+  // w; -1 if no such path
+  public int length(Iterable<Integer> v, Iterable<Integer> w) {
     // prepare visit map
-    VisitType visited[]= new VisitType[G.V()];
+    VisitType visited[] = new VisitType[G.V()];
     Arrays.fill(visited, VisitType.N);
     int ancestor[] = new int[G.V()];
     Arrays.fill(ancestor, -1);
 
-    // prepare bfs queue 
+    // prepare bfs queue
     Deque<Integer> bfsQueue = new LinkedList<>();
     for (Integer i : v) {
       visited[i] = VisitType.V;
@@ -150,15 +155,16 @@ public class SAP {
     return -1;
   }
 
-  // a common ancestor that participates in shortest ancestral path; -1 if no such path
+  // a common ancestor that participates in shortest ancestral path; -1 if no such
+  // path
   public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
     // prepare visit map
-    VisitType visited[]= new VisitType[G.V()];
+    VisitType visited[] = new VisitType[G.V()];
     Arrays.fill(visited, VisitType.N);
     int ancestor[] = new int[G.V()];
     Arrays.fill(ancestor, -1);
 
-    // prepare bfs queue 
+    // prepare bfs queue
     Deque<Integer> bfsQueue = new LinkedList<>();
     for (Integer i : v) {
       visited[i] = VisitType.V;
@@ -206,5 +212,5 @@ public class SAP {
     int length = sap.length(v, w);
     StdOut.printf("ancestor %d, length %d\n", a, length);
   }
-  
+
 }

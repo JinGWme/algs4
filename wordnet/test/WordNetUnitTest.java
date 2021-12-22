@@ -3,8 +3,6 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import edu.princeton.cs.algs4.StdOut;
-
 class WordNetUnitTest {
 
     // private final Calculator calculator = new Calculator();
@@ -56,6 +54,32 @@ class WordNetUnitTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             net.sap("AB", "adafafsfa");        
         });
+    }
+
+    @Test
+    void testOutCast5() {
+        WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");
+        Outcast cast = new Outcast(net);
+        String[] outcast5 = {"horse", "zebra", "cat", "bear", "table"};
+        String out = cast.outcast(outcast5);
+        Assertions.assertEquals("table", out);
+    }
+
+    @Test
+    void testOutCast8() {
+        WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");
+        Outcast cast = new Outcast(net);
+        String[] outcast8 = {"water", "soda", "bed", "orange_juice", "milk", "apple_juice", "tea", "coffee"};
+        Assertions.assertEquals("bed", cast.outcast(outcast8));
+    }
+
+    @Test
+    void testOutCast11() {
+        WordNet net = new WordNet("data/synsets.txt", "data/hypernyms.txt");
+        Outcast cast = new Outcast(net);
+        String[] outcast11 = {"apple", "pear", "peach", "banana", "lime", "lemon", "blueberry",
+                                "strawberry", "mango", "watermelon", "potato"};
+        Assertions.assertEquals("potato", cast.outcast(outcast11));
 
     }
 
