@@ -1,11 +1,9 @@
 import java.awt.Color;
-import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.StdOut;
 
 public class EnergyUnitTest {
 
