@@ -1,14 +1,20 @@
-
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
-    private final WeightedQuickUnionUF wqu;
-    private final boolean[] openness;
+    private final WeightedQuickUnionUF wqu;     // connects to virtual head only for test fullness
+    private final WeightedQuickUnionUF wquP;    // connects to virutal head/tail for testing percolation 
+    private final boolean[] openness;           // simulate the 2-dimension array to test openness
     private final int n;
     private int nOpen;
     private final int headNodeIndex;
     private final int tailNodeIndex;
+
+    private int index(int row, int col) {
+        if (row < 1 || row > n || col < 1 || col > n)
+            throw new IllegalArgumentException("Index out of bound " + row + "," + col);
+        return ((row - 1) * n) + (col - 1);
+    }
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -19,18 +25,17 @@ public class Percolation {
         int gridSize = n * n;
         // Two additional nodes for virtual head and tail node
         wqu = new WeightedQuickUnionUF(gridSize + 2);
+        wquP = new WeightedQuickUnionUF(gridSize + 2);
         // Initialize to be all closed;
         openness = new boolean[gridSize];
-        for (int i = 0; i < gridSize; i++) {
-            openness[i] = false;
-        }
         headNodeIndex = gridSize;
         tailNodeIndex = gridSize + 1;
         for (int i = 0; i < n; i++) {
             // Union the first row to a virtual head node at [gridSize]
             wqu.union(headNodeIndex, i);
+            wquP.union(headNodeIndex, i);
             // Union the last row to a virtual tail node at [gridSize+1]
-            wqu.union(tailNodeIndex, gridSize - 1 - i);
+            wquP.union(tailNodeIndex, gridSize - 1 - i);
         }
     }
 
@@ -43,16 +48,20 @@ public class Percolation {
         ++nOpen;
         if (row > 1 && isOpen(row - 1, col)) {
             wqu.union(index(row - 1, col), index(row, col));
+            wquP.union(index(row - 1, col), index(row, col));
         }
         if (row < n && isOpen(row + 1, col)) {
             wqu.union(index(row + 1, col), index(row, col));
+            wquP.union(index(row + 1, col), index(row, col));
         }
 
         if (col > 1 && isOpen(row, col - 1)) {
             wqu.union(index(row, col - 1), index(row, col));
+            wquP.union(index(row, col - 1), index(row, col));
         }
         if (col < n && isOpen(row, col + 1)) {
             wqu.union(index(row, col + 1), index(row, col));
+            wquP.union(index(row, col + 1), index(row, col));
         }
     }
 
@@ -64,7 +73,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         // the first row is alway connected to head node
-        // so we need this extra check.
+        // so we need this extra check about isOpen.
 
         return isOpen(row, col) && (wqu.find(index(row, col)) == wqu.find(headNodeIndex));
     }
@@ -78,12 +87,7 @@ public class Percolation {
     public boolean percolates() {
         if (n == 1)
             return openness[index(1, 1)];
-        return wqu.find(headNodeIndex) == wqu.find(tailNodeIndex);
+        return wquP.find(headNodeIndex) == wquP.find(tailNodeIndex);
     }
 
-    private int index(int row, int col) {
-        if (row < 1 || row > n || col < 1 || col > n)
-            throw new IllegalArgumentException("Index out of bound " + row + "," + col);
-        return ((row - 1) * n) + (col - 1);
-    }
 }
