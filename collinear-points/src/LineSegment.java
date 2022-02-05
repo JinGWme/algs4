@@ -63,5 +63,18 @@ public class LineSegment {
     public int hashCode() {
         throw new UnsupportedOperationException("hashCode() is not supported");
     }
+
+    // @Override
+    // public boolean equals(Object other) {
+    //     if (other == null) return false;
+    //     if (other instanceof LineSegment) {
+    //         LineSegment otherLineSegment = (LineSegment)other;
+    //         return this.p.equals(otherLineSegment.p)&&this.q.equals(otherLineSegment.q);
+    //     }
+    //     return false;
+
+    // }
+
+
 }
 
