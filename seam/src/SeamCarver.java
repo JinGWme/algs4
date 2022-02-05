@@ -7,6 +7,17 @@ public class SeamCarver {
 
     private Picture picture;
 
+    // create a seam carver object base one the given picture
+    public SeamCarver(Picture picture) {
+        if (picture == null) throw new IllegalArgumentException();
+        this.picture = new Picture(picture.width(), picture.height());
+        for (int row = 0; row < picture.height(); row++) {
+            for (int col = 0; col < picture.width(); col++) {
+                this.picture.set(col, row, picture.get(col, row));
+            }
+        }
+    }
+
     private double[][] energyMatrix() {
         double[][] a = new double[picture.height()][picture.width()];
         for (int row = 0; row < picture.height(); row++)
@@ -48,7 +59,7 @@ public class SeamCarver {
         int height = energyMatrix.length, width = energyMatrix[0].length;
         double[][] distanceTo = new double[height][width];
         for (double[] ds : distanceTo)
-            Arrays.fill(ds, Double.MAX_VALUE);
+            Arrays.fill(ds, Double.POSITIVE_INFINITY);
         int[][] edgeTo = new int[height][width];
         for (int[] is : edgeTo)
             Arrays.fill(is, -1);
@@ -65,7 +76,7 @@ public class SeamCarver {
             }
         }
 
-        double minEnergy = Double.MAX_VALUE;
+        double minEnergy = Double.POSITIVE_INFINITY;
         int minXIndex = 0;
         for (int x = 0; x < width; x++) {
             if (minEnergy > distanceTo[height - 1][x]) {
@@ -82,14 +93,16 @@ public class SeamCarver {
         return seam;
     }
 
-    // create a seam carver object base one the given picture
-    public SeamCarver(Picture picture) {
-        this.picture = picture;
-    }
 
     // current picture
     public Picture picture() {
-        return this.picture;
+        Picture np = new Picture(picture.width(), picture.height());
+        for (int row = 0; row < picture.height(); row++) {
+            for (int col = 0; col < picture.width(); col++) {
+                np.set(col, row, picture.get(col, row));
+            }
+        }
+        return np;
     }
 
     // width of current picture
@@ -119,7 +132,7 @@ public class SeamCarver {
     public int[] findHorizontalSeam() {
         double[][] energy = energyMatrix();
         // transpose matrix
-        double transposedEnergy[][] = new double[energy[0].length][energy.length];
+        double[][] transposedEnergy = new double[energy[0].length][energy.length];
         for (int y = 0; y < energy.length; y++) {
             for (int x = 0; x < energy[0].length; x++) {
                 transposedEnergy[x][y] = energy[y][x];
@@ -136,9 +149,13 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam == null) throw new IllegalArgumentException();
+        if (seam.length != picture.width()) throw new IllegalArgumentException();
+        if (picture.height() <= 1) throw new IllegalArgumentException();
         Picture np = new Picture(picture.width(), picture.height() - 1);
         for (int col = 0; col < picture.width(); col++) {
             int nrow = 0;
+            if (col > 0 && Math.abs(seam[col-1]-seam[col]) > 1) throw new IllegalArgumentException();
             for (int row = 0; row < picture.height(); row++) {
                 if (seam[col] == row)
                     continue;
@@ -151,14 +168,18 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
-        Picture np = new Picture(picture.width(), picture.height());
+        if (seam == null) throw new IllegalArgumentException();
+        if (seam.length != picture.height()) throw new IllegalArgumentException();
+        if (picture.width() <= 1) throw new IllegalArgumentException();
+        Picture np = new Picture(picture.width()-1, picture.height());
         for (int row = 0; row < picture.height(); row++) {
             int ncol = 0;
+            if (row > 0 && Math.abs(seam[row-1]-seam[row]) > 1) throw new IllegalArgumentException();
             for (int col = 0; col < picture.width(); col++) {
                 if (seam[row] == col)
                     continue;
                 else
-                    np.set(col, ncol++, picture.get(col, row));
+                    np.set(ncol++, row, picture.get(col, row));
             }
         }
         this.picture = np;
