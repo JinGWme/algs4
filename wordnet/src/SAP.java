@@ -4,7 +4,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.StdOut;
 
 public class SAP {
 
@@ -25,7 +24,7 @@ public class SAP {
 
   // contructor takes a digraph (not necessarily a DAG)
   public SAP(Digraph g) {
-    this.G = g;
+    this.G = new Digraph(g);
   }
 
   private Visit[] bfs(Iterable<Integer> from) {
@@ -73,13 +72,11 @@ public class SAP {
     Visit[] wVisited = bfs(w);
 
     int shortest = -1;
-    int ancestor = -1;
     for (int i = 0; i < G.V(); i++) {
       if (vVisited[i] != null && wVisited[i] != null) {
         int length = vVisited[i].length + wVisited[i].length;
         if (shortest == -1 || length < shortest) {
           shortest = length;
-          ancestor = i;
         }
       }
     }

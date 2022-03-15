@@ -1,26 +1,13 @@
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
-import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
-
-    // private static final Comparator<SearchNode> HAMMINGCOMP = new Comparator<SearchNode>() {
-
-    //     @Override
-    //     public int compare(Solver.SearchNode arg0, Solver.SearchNode arg1) {
-    //         int weight0 = arg0.board.hamming() + arg0.move;
-    //         int weight1 = arg1.board.hamming() + arg1.move;
-    //         if (weight0 < weight1)
-    //             return -1;
-    //         else if (weight0 > weight1)
-    //             return 1;
-    //         else
-    //             return 0;
-    //     }
-    // };
 
     private static final Comparator<SearchNode> MANHATTANCOMP = new Comparator<SearchNode>() {
 
@@ -37,7 +24,6 @@ public class Solver {
         }
 
     };
-    private MinPQ<SearchNode> pq;
 
     private class SearchNode {
         private final Board board;
@@ -51,6 +37,9 @@ public class Solver {
         }
     }
 
+    private Stack<Board> solution;
+    private boolean solvable;
+    private int moves;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
@@ -58,12 +47,15 @@ public class Solver {
             throw new IllegalArgumentException();
         MinPQ<SearchNode> pqa = new MinPQ<SearchNode>(MANHATTANCOMP);
         MinPQ<SearchNode> pqb = new MinPQ<SearchNode>(MANHATTANCOMP);
+        solution = new Stack<>();
 
         pqa.insert(new SearchNode(initial, 0, null));
         pqb.insert(new SearchNode(initial.twin(), 0, null));
         while (true) {
             if (pqa.min().board.isGoal()) {
-                this.pq = pqa;
+                // this.pq = pqa;
+                solvable = true;
+                moves = pqa.min().move;
                 break;
             }
             SearchNode nodeA = pqa.delMin();
@@ -74,7 +66,9 @@ public class Solver {
             }
 
             if (pqb.min().board.isGoal()) {
-                this.pq = null;
+                // this.pq = null;
+                solvable = false;
+                moves = -1;
                 break;
             }
             SearchNode nodeB = pqb.delMin();
@@ -84,44 +78,28 @@ public class Solver {
                 pqb.insert(new SearchNode(neighbor, nodeB.move + 1, nodeB));
             }
         }
+        if (solvable) {
+            SearchNode node = pqa.min();
+            while (node != null) {
+                solution.push(node.board);
+                node = node.previous;
+            }
+        }
     }
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-        if (pq == null)
-            return false;
-        return pq.min().board.isGoal();
+        return solvable;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        if (!isSolvable())
-            return -1;
-        return pq.min().move;
+        return moves;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        if (!isSolvable())
-            return null;
-        return new Iterable<Board>() {
-
-            @Override
-            public Iterator<Board> iterator() {
-                SearchNode node = pq.min();
-                Stack<Board> s = new Stack<>();
-
-                while (node != null) {
-                    s.push(node.board);
-                    node = node.previous;
-                }
-                return s.iterator();
-            }
-        };
-    }
-
-    // test client (see below)
-    public static void main(String[] args) {
-        StdOut.println();
+        if (solvable) return solution;
+        else return null;
     }
 }

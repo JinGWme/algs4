@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import edu.princeton.cs.algs4.DepthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
@@ -62,6 +63,11 @@ public class WordNet {
         }
         
         if ((new DirectedCycle(G)).hasCycle()) throw new IllegalArgumentException();
+        int rootCnt = 0;
+        for (int i = 0; i < G.V(); i++) {
+            if (G.outdegree(i) == 0) rootCnt++;
+        }
+        if (rootCnt != 1) throw new IllegalArgumentException();
     }
 
     // returns all WordNet nouns

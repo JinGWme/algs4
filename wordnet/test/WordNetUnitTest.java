@@ -82,4 +82,17 @@ class WordNetUnitTest {
         Assertions.assertEquals("whole unit", net.sap("Hippeastrum_puniceum", "ramequin"));
     }
 
+    @Test
+    void testInvalidCycle() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new WordNet("data/synsets3.txt", "data/hypernyms3InvalidCycle.txt");
+        });
+    }
+
+    @Test
+    void testTwoRoos() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new WordNet("data/synsets3.txt", "data/hypernyms3InvalidTwoRoots.txt");
+        });
+    }
 }

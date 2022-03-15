@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class SAPUnitTest {
     @Test
@@ -140,5 +141,16 @@ public class SAPUnitTest {
             sap.ancestor(Arrays.asList(v), Arrays.asList(w));
             sap.length(Arrays.asList(v), Arrays.asList(w));
         });
+    }
+
+    @Test
+    void testGraph1Immutable() {
+        In in = new In("data/digraph1.txt");
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        int len = sap.length(0, 3);
+        G.addEdge(0, 3);
+        Assertions.assertEquals(len, sap.length(0, 3));
+
     }
 }

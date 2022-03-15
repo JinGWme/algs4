@@ -2,12 +2,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdDraw;
-import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.StdRandom;
 
 public class KdTree {
     private class KdTreeNode implements Comparable<Point2D> {
@@ -57,13 +53,13 @@ public class KdTree {
 
         @Override
         public void draw() {
-            StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.setPenRadius(0.005);
-            StdDraw.point(getPoint().x(), getPoint().y());
+            // StdDraw.setPenColor(StdDraw.BLACK);
+            // StdDraw.setPenRadius(0.005);
+            // StdDraw.point(getPoint().x(), getPoint().y());
 
-            StdDraw.setPenColor(StdDraw.BLUE);
-            StdDraw.setPenRadius(0.001);
-            StdDraw.line(getRect().xmin(), getPoint().y(), getRect().xmax(), getPoint().y());
+            // StdDraw.setPenColor(StdDraw.BLUE);
+            // StdDraw.setPenRadius(0.001);
+            // StdDraw.line(getRect().xmin(), getPoint().y(), getRect().xmax(), getPoint().y());
         }
 
         @Override
@@ -106,13 +102,13 @@ public class KdTree {
 
         @Override
         public void draw() {
-            StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.setPenRadius(0.005);
-            StdDraw.point(getPoint().x(), getPoint().y());
+            // StdDraw.setPenColor(StdDraw.BLACK);
+            // StdDraw.setPenRadius(0.005);
+            // StdDraw.point(getPoint().x(), getPoint().y());
 
-            StdDraw.setPenColor(StdDraw.RED);
-            StdDraw.setPenRadius(0.001);
-            StdDraw.line(getPoint().x(), getRect().ymin(), getPoint().x(), getRect().ymax());
+            // StdDraw.setPenColor(StdDraw.RED);
+            // StdDraw.setPenRadius(0.001);
+            // StdDraw.line(getPoint().x(), getRect().ymin(), getPoint().x(), getRect().ymax());
         }
 
     }
@@ -170,19 +166,19 @@ public class KdTree {
     }
 
     public void draw() {
-        StdDraw.setXscale(0, 1);
-        StdDraw.setYscale(0, 1);
-        draw(root);
-        StdDraw.show();
-        return;
+        // StdDraw.setXscale(0, 1);
+        // StdDraw.setYscale(0, 1);
+        // draw(root);
+        // StdDraw.show();
+        // return;
     }
 
     private void draw(KdTreeNode n) {
-        if (n == null)
-            return;
-        n.draw();
-        draw(n.left);
-        draw(n.right);
+        // if (n == null)
+        //     return;
+        // n.draw();
+        // draw(n.left);
+        // draw(n.right);
     }
 
     public Iterable<Point2D> range(RectHV rect) {
@@ -214,8 +210,7 @@ public class KdTree {
     }
 
     private Point2D nearest(KdTreeNode x, Point2D target) {
-        if (x == null)
-            return P_INFINITY;
+        if (x == null) return null;
 
         KdTreeNode firstSubTree, secondSubTree;
         int cmp = x.compareTo(target);
@@ -228,99 +223,21 @@ public class KdTree {
             secondSubTree = x.right;
         }
 
-        Point2D nearestPoint = nearest(firstSubTree, target);
+        Point2D nearestPoint = x.p;
+        if (firstSubTree != null) {
+            Point2D tmp = nearest(firstSubTree, target);
+            if (tmp != null && tmp.distanceTo(target) < nearestPoint.distanceTo(target)) nearestPoint = tmp;
+        }
+
         if (secondSubTree != null && secondSubTree.rect.distanceSquaredTo(target) < nearestPoint.distanceSquaredTo(target)) {
             Point2D tmp = nearest(secondSubTree, target);
-            if (tmp.distanceSquaredTo(target) < nearestPoint.distanceSquaredTo(target))
-                nearestPoint = tmp;
+            if (tmp != null && tmp.distanceSquaredTo(target) < nearestPoint.distanceSquaredTo(target)) nearestPoint = tmp;
         }
-        if (x.p.distanceSquaredTo(target) < nearestPoint.distanceSquaredTo(target))
-            nearestPoint = x.p;
         return nearestPoint;
     }
 
     public static void main(String[] args) {
-        testE();
     }
 
 
-    private static void testE() {
-        In in = new In("data/teste.txt");
-        KdTree tree = new KdTree();
-        while(!in.isEmpty()) {
-            double x = in.readDouble();
-            if (x > 1 || x < 0) throw new IllegalArgumentException();
-            double y = in.readDouble();
-            if (y > 1 || y < 0) throw new IllegalArgumentException();
-            Point2D t = new Point2D(x, y);
-            StdOut.println("Inserting " + t);
-            tree.insert(t);
-        }
-        tree.draw();
-        RectHV rect = new RectHV(0.33, 0.03, 0.76, 0.35);
-        // for(Point2D p : tree.range(rect)){
-        //     StdDraw.setPenRadius(0.04);
-        //     StdDraw.point(p.x(), p.y());
-        // }
-        StdDraw.rectangle((rect.xmin()+rect.xmax())/2, (rect.ymin()+rect.ymax())/2, rect.width()/2, rect.height()/2);
-
-    }
-    private static void testD() {
-        In in = new In("data/testd.txt");
-        KdTree tree = new KdTree();
-        while(!in.isEmpty()) {
-            double x = in.readDouble();
-            if (x > 1 || x < 0) throw new IllegalArgumentException();
-            double y = in.readDouble();
-            if (y > 1 || y < 0) throw new IllegalArgumentException();
-            Point2D t = new Point2D(x, y);
-            StdOut.println("Inserting " + t);
-            tree.insert(t);
-        }
-        if (!tree.contains(new Point2D(0.25, 0.5)))
-            throw new RuntimeException("Losing point ");
-
-    }
-
-    private static void testC() {
-        In in = new In("data/testc.txt");
-        KdTree tree = new KdTree();
-        while(!in.isEmpty()) {
-            double x = in.readDouble();
-            if (x > 1 || x < 0) throw new IllegalArgumentException();
-            double y = in.readDouble();
-            if (y > 1 || y < 0) throw new IllegalArgumentException();
-            Point2D t = new Point2D(x, y);
-            StdOut.println("Inserting " + t);
-            tree.insert(t);
-        }
-        if (!tree.contains(new Point2D(0.2, 0.3)))
-            throw new RuntimeException("Losing point ");
-
-    }
-    private static void testB() {
-        KdTree tree = new KdTree();
-        tree.insert(new Point2D(0, 1));
-        tree.insert(new Point2D(0, 0));
-        if (tree.size() != 2) throw new RuntimeException("Wrong tree size");
-        tree.insert(new Point2D(0, 1));
-        if (tree.size() != 2) throw new RuntimeException("Duplicated point inserted");
-    }
-     
-    private static void testA() {
-        In in = new In("data/testa.txt");
-        KdTree tree = new KdTree();
-        int nodeCount = 0;
-        while(!in.isEmpty()) {
-            double x = in.readDouble();
-            if (x > 1 || x < 0) throw new IllegalArgumentException();
-            double y = in.readDouble();
-            if (y > 1 || y < 0) throw new IllegalArgumentException();
-            Point2D t = new Point2D(x, y);
-            StdOut.println("Inserting " + t);
-            tree.insert(t);
-            nodeCount++;
-            if (nodeCount != tree.size()) throw new RuntimeException("Wrong size");
-        }
-    }
 }
