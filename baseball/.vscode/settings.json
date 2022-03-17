@@ -5,5 +5,10 @@
         "lib/**/*.jar",
         "/home/wangj/works/algs4/algs4.jar",
         "/home/wangj/works/algs4/junit-platform-console-standalone-1.8.2.jar"
+    ],
+    "java.test.config": [
+        {
+            "workingDirectory": "${workspaceFolder}"
+        }
     ]
 }

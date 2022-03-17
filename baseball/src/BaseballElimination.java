@@ -1,11 +1,14 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.xml.transform.sax.TemplatesHandler;
-
+import edu.princeton.cs.algs4.FlowEdge;
+import edu.princeton.cs.algs4.FlowNetwork;
+import edu.princeton.cs.algs4.FordFulkerson;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class BaseballElimination {
     private final String[] names;
@@ -14,12 +17,30 @@ public class BaseballElimination {
     private final int[] losses;
     private final int[] remains;
     private final int[][] against;
+    private int networkSize;
+    private int remainingGame;
+    private FordFulkerson ff;
+    private VertexType[] v;
 
     private int id(String team) {
         try {
             return nameMap.get(team);
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Team " + team + " not part of league");
+            throw new IllegalArgumentException("Team " + team + " not part of division");
+        }
+    }
+    public static void main(String[] args) {
+        BaseballElimination division = new BaseballElimination(args[0]);
+        for(String team : division.teams()) {
+            if (division.isEliminated(team)) {
+                StdOut.print(team + " is eliminated by the subset R = { ");
+                for (String t : division.certificateOfElimination(team)) {
+                    StdOut.print(t + " ");
+                }
+                StdOut.print("}");
+            } else {
+                StdOut.println(team + " is not eliminated");
+            }
         }
     }
     // create a baseball division from given file name in format specified 
@@ -86,59 +107,69 @@ public class BaseballElimination {
     }
 
     private FlowNetwork buildNetwork(String team) {
+        // calculate network size to create flow network
         final int teamNum = numberOfTeams();
         final int GAME_VERTEX_NUM = (teamNum-2)*(teamNum-1)/2;
         final int TEAM_VERTEX_NUM = (teamNum-1);
-        int networkSize = 2 + GAME_VERTEX_NUM + TEAM_VERTEX_NUM;
+        networkSize = 2 + GAME_VERTEX_NUM + TEAM_VERTEX_NUM;
         FlowNetwork network = new FlowNetwork(networkSize);
+        remainingGame = 0;
 
-        // Add edges between vritual source and game vertices
-        int gameVertexId = 1;
-        for (int i = 0; i < teamNum; i++) {
-            if (team.equals(names[i])) continue;
+        // starting point to help creat network
+        final int S = 0;                        // source vertex id
+        final int T = networkSize-1;            // sink vertex id
+        final int G0 = 1;                       // starting index for game vertices
+        final int T0 = G0+GAME_VERTEX_NUM;      // starting index for team vertices
+        final int CTEAMID = nameMap.get(team);  // index for team that is being checked
+
+        v = new VertexType[networkSize];
+
+        // Add edges between virtual source and game vertices
+        // int gameVertexId = G0;
+        for (int i = 0, gameVertexId = G0; i < teamNum; i++) {
+            if (i == CTEAMID) continue;
             for (int j = i+1; j < teamNum; j++) {
-                if (team.equals(names[j])) continue;
-                FlowEdge edge = new FlowEdge(0, gameVertexId++, against(names[i], names[j]));
+                if (j == CTEAMID) continue;
+                FlowEdge edge = new FlowEdge(S, gameVertexId, against(names[i], names[j]));
+                v[gameVertexId++] = new GameVertex(i, j);
                 network.addEdge(edge);
+                remainingGame += edge.capacity();
             }
         }
 
         // Add edge Between game vertices and team vertices
-        int teamVertexId = 1 + GAME_VERTEX_NUM;
-        gameVertexId = 1;
-        for (int i = 0; i < teamNum; i++) {
-            if (team.equals(names[i])) continue;
-            for (int j = i+1; j < teamNum; j++) {
-                if (team.equals(names[j])) continue;
-                FlowEdge edge = new FlowEdge(gameVertexId++, teamVertexId++, Integer.MAX_VALUE);
-                network.addEdge(edge);
-            }
-        }
-        teamVertexId = 1 + GAME_VERTEX_NUM;
-        gameVertexId = 1;
-        for (int i = 0; i < teamNum-1; i++) {
-            if (team.equals(names[i])) continue;
-            for (int j = i+1; j < teamNum-1; j++) {
-                if (team.equals(names[j])) continue;
-                FlowEdge edge = new FlowEdge(gameVertexId++, teamVertexId++, Integer.MAX_VALUE);
-                network.addEdge(edge);
-            }
-        }
-
-        // Add edges between  team vertices and virtual sink
-        teamVertexId = 1 + GAME_VERTEX_NUM;
-        for (int i = 0; i < (teamNum-1); i++) { 
-            if (team.equals(names[i])) continue;
-            FlowEdge edge = new FlowEdge(teamVertexId++, networkSize-1, wins(team)+remaining(team)-wins(names[i]));
+        for (int gameVertexId = G0; gameVertexId < T0; gameVertexId++) {
+            GameVertex gv = (GameVertex)v[gameVertexId];
+            // add edge to two team vertex
+            int teamId = gv.a;
+            int teamVertexId;
+            if (teamId > CTEAMID)   teamVertexId = teamId-1;
+            else                    teamVertexId = teamId;
+            v[T0+teamVertexId] = new TeamVertex(teamId);
+            FlowEdge edge = new FlowEdge(gameVertexId, T0+teamVertexId, Double.POSITIVE_INFINITY);
+            network.addEdge(edge);
+            teamId = gv.b;
+            if (teamId > CTEAMID)   teamVertexId = teamId-1;
+            else                    teamVertexId = teamId;
+            v[T0+teamVertexId] = new TeamVertex(teamId);
+            edge = new FlowEdge(gameVertexId, T0+teamVertexId, Double.POSITIVE_INFINITY);
             network.addEdge(edge);
         }
-
+        
+        for (int teamVertexId = T0; teamVertexId < T; teamVertexId++) {
+            TeamVertex tv = (TeamVertex)v[teamVertexId];
+            int capacity = wins[CTEAMID]+remains[CTEAMID]-wins[tv.t];
+            FlowEdge edge = new FlowEdge(teamVertexId, T, capacity);
+            network.addEdge(edge);
+        }
         return network;
     }
 
     private boolean isNontrivialEliminated(String team) {
         FlowNetwork network = buildNetwork(team);
-        return false;
+        ff = new FordFulkerson(network, 0, networkSize-1);
+        if (ff.value() == remainingGame) return false;
+        return true;
 
     }
     // is given team elimitated?
@@ -149,6 +180,38 @@ public class BaseballElimination {
 
     // subset R of teams that eliminates given team; null if not eliminated
     public Iterable<String> certificateOfElimination(String team) {
+        List<String> inCut = new ArrayList<>();
+        if (isSimpleElimated(team)) {
+            for (String oppo : teams()) {
+                if (oppo.equals(team)) continue;
+                if (wins(oppo) > wins(team)+remaining(team)) inCut.add(oppo);
+            }
+            return inCut;
+        }
+        else if (isNontrivialEliminated(team)) {
+            final int teamNum = numberOfTeams();
+            final int GAME_VERTEX_NUM = (teamNum-2)*(teamNum-1)/2;
+            final int T0 = 1 + GAME_VERTEX_NUM;      // starting index for team vertices
+            
+            for (int i = T0; i < T0+teamNum-1; i++) {
+                // if (team.equals(names[i])) continue;
+                if (ff.inCut(i))  {
+                    inCut.add(names[((TeamVertex)v[i]).t]);
+                }
+            }
+            return inCut;
+        }
         return null;
+    }
+
+    private class VertexType {};
+    private class GameVertex extends VertexType{
+        final int a;
+        final int b;
+        public GameVertex(int a, int b) {this.a = a; this.b = b;}
+    }
+    private class TeamVertex extends VertexType {
+        final int t;
+        TeamVertex(int t) {this.t = t;}
     }
 }
